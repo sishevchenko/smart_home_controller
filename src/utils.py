@@ -17,8 +17,9 @@ def _get_func_name() -> str:
 	return sys._getframe(1).f_code.co_name
 
 
-def _get_log_info(id: int=0, username: str="default", func_name: str="default") -> str:
-	return f"{datetime.utcnow()}: {id=} {username=} - {func_name}"
+def _get_log_info(id: int=0, username: str="default", other_info: str="", func_name: str="default") -> str:
+	"""Возвращает стандартную строку логирования"""
+	return f"{datetime.utcnow()}: {id=} {username=} {other_info}- {func_name}"
 
 
 def _check_user_rights(func):
