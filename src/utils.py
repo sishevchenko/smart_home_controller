@@ -23,7 +23,7 @@ def _get_log_info(id: int=0, username: str="default", func_name: str="default") 
 
 def _check_user_rights(func):
 	"""Декоратор для проверки пользовательских прав.
-	В хендлерах записывается после декоратора перехватчика"""
+	В хендлерах используется после декоратора перехватчика"""
 
 	async def wraper(message: Message):
 		users = select(BotUser).column(BotUser.username)
