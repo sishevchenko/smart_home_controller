@@ -57,7 +57,7 @@ class Settings:
 		if not isinstance(self._SERVER, NoneType):
 			loop = asyncio.get_event_loop()
 			loop.create_task(self._SERVER.shutdown())
-			self._SERVER = None
+		self._SERVER = None
 
 	SERVER: uvicorn.Server = property(_get_server, _set_server, _del_server)
 
