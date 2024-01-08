@@ -58,6 +58,7 @@ async def create_new_user_handler(message: Message, state: FSMContext):
         await state.clear()
         _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
     else:
+        await message.answer("Неверный ключ регистрации!")
         _logger.warning(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
@@ -96,7 +97,7 @@ async def get_user_info_handler(message: Message):
     user = user.scalars().first()
     chat_id = user.chat_id
     username = user.username
-    await message.answer(f"{chat_id=} {username=}")
+    await message.answer(f"{chat_id=}\n{username=}")
 
 
 @dp.message()
