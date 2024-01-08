@@ -26,7 +26,7 @@ class Settings:
 		self.BASE_DIR = Path(__file__).resolve().parent.parent
 		self.DEBUG = True
 		self.BOT_START = True
-		self.DISPATCHER: Dispatcher = Dispatcher()
+		self._DISPATCHER: Dispatcher | None = None
 		self.APP_HOST = os.getenv("APP_HOST")
 		self.APP_PORT = os.getenv("APP_PORT")
 		self.SECRET_KEY = os.getenv("SECRET_KEY")
@@ -36,14 +36,14 @@ class Settings:
 		self.REGISTER_KEY = os.getenv("REGISTER_KEY")
 		self.DB_URL = os.getenv("DB_URL")
 		self.ALEMBIC_DB_URL = os.getenv("ALEMBIC_DB_URL")
-		self._SERVER = None
+		self._SERVER: uvicorn.Server | None = None
 
-	def _get_server(self):
+	def _get_server(self) -> uvicorn.Server:
 		if isinstance(self._SERVER, NoneType):
 			self._set_server()
 		return self._SERVER
 
-	def _set_server(self):
+	def _set_server(self) -> None:
 		if isinstance(self._SERVER, NoneType):
 			config = uvicorn.Config(
 				"main:app", 
@@ -55,13 +55,27 @@ class Settings:
 			)
 			self._SERVER = uvicorn.Server(config)
 
-	def _del_server(self):
+	def _del_server(self) -> None:
 		if not isinstance(self._SERVER, NoneType):
 			loop = asyncio.get_event_loop()
 			loop.create_task(self._SERVER.shutdown())
 		self._SERVER = None
 
 	SERVER: uvicorn.Server = property(_get_server, _set_server, _del_server)
+
+	def _get_dispatcher(self) -> Dispatcher:
+		if isinstance(self._DISPATCHER, NoneType):
+			self._set_dispatcher()
+		return self._DISPATCHER
+
+	def _set_dispatcher(self) -> None:
+		if isinstance(self._DISPATCHER, NoneType):
+			self._DISPATCHER = Dispatcher()
+
+	def _del_dispatcher(self) -> None:
+		self._DISPATCHER = None
+
+	DISPATCHER = property(_get_dispatcher, _set_dispatcher, _del_dispatcher)
 
 @lru_cache()
 def get_settings() -> Settings:
