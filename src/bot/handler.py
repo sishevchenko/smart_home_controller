@@ -22,7 +22,6 @@ _logger = getLogger(__name__)
 @CONFIG.DISPATCHER.message(CommandStart())
 async def command_start_handler(message: Message):
     """Стартовая информация"""
-    # await message.answer(BOT_RESPONSE.START)
     await message.answer(BOT_RESPONSE.START)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
@@ -30,7 +29,6 @@ async def command_start_handler(message: Message):
 @CONFIG.DISPATCHER.message(Command(commands=['help']))
 async def command_help_handler(message: Message):
     """Все комманды с расшифровкой"""
-    # await message.answer(BOT_RESPONSE.HELP)
     await message.answer(BOT_RESPONSE.HELP)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 

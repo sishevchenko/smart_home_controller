@@ -81,6 +81,7 @@ class Settings:
 
 	DISPATCHER = property(_get_dispatcher, _set_dispatcher, _del_dispatcher)
 
+
 @lru_cache()
 def get_settings() -> Settings:
 	"""Возвращает синглтон с настройками приложения"""
