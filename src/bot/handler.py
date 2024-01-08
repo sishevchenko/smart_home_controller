@@ -39,6 +39,10 @@ async def command_help_handler(message: Message):
 async def user_register_handler(message: Message, state: FSMContext):
     """Начало регистрации в боте нового пользователя или обновление его данных"""
 
+    if message.from_user.id != message.chat.id:
+        await message.answer("Пройти регистрацию можно только в личном чате с ботом!")
+        return
+
     await message.answer("Введите ключ доступа")
     await state.set_state(StateRegister.INPUT_REGISTER_KEY)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
@@ -98,15 +102,15 @@ async def get_user_info_handler(message: Message):
     user = user.scalars().first()
     chat_id = user.chat_id
     username = user.username
-    await message.answer(f"{chat_id=}\n{username=}")
+    await message.answer(f"chat_id = {chat_id}\nusername = {username}")
 
 
 @dp.message()
-@_check_user_rights
+# @_check_user_rights
 async def echo_handler(message: Message):
     """Отвечаю сообщением, которое мне отправили"""
     try:
-        await message.send_copy(chat_id=message.chat.id)
+        await message.answer("Простите, я не понимаю\nПожалуйста, посмотрите инструкцию по команде\n/help")
     except TypeError:
         await message.reply(text="Ой, что-то пошло не так :(\n/help")
         _logger.error(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
