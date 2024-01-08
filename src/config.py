@@ -30,6 +30,7 @@ class Settings:
 		self.DEBUG: bool = True
 		self.BOT_START: bool = True
 		self._DISPATCHER: Dispatcher | None = None
+		self.OWNER: str | None = os.getenv("OWNER")
 		self.APP_HOST: str | None = os.getenv("APP_HOST")
 		self.APP_PORT: str | None = os.getenv("APP_PORT")
 		self.SECRET_KEY: str | None = os.getenv("SECRET_KEY")
