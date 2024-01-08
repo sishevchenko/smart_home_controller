@@ -34,6 +34,7 @@ async def command_help_handler(message: Message):
     await message.answer(bot_response["help"])
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
+
 @dp.message(Command(commands=['register']))
 async def user_register_handler(message: Message, state: FSMContext):
     """Начало регистрации в боте нового пользователя или обновление его данных"""
