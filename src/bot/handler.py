@@ -12,8 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import CONFIG
 from src.db import get_async_session
 from src.bot.state_machine import StateRegister
-# from src.bot.response import BOT_RESPONSE
-from src.bot.response import bot_response
+from src.bot.response import BOT_RESPONSE
 from src.bot.utils import _check_user_rights, _get_func_name, _get_log_info
 from src.bot.models import BotUser
 
@@ -24,7 +23,7 @@ _logger = getLogger(__name__)
 async def command_start_handler(message: Message):
     """Стартовая информация"""
     # await message.answer(BOT_RESPONSE.START)
-    await message.answer(bot_response["start"])
+    await message.answer(BOT_RESPONSE.START)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
@@ -32,7 +31,7 @@ async def command_start_handler(message: Message):
 async def command_help_handler(message: Message):
     """Все комманды с расшифровкой"""
     # await message.answer(BOT_RESPONSE.HELP)
-    await message.answer(bot_response["help"])
+    await message.answer(BOT_RESPONSE.HELP)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
