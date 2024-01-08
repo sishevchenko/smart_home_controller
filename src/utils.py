@@ -5,9 +5,10 @@ from logging import getLogger
 from aiogram.types import Message
 
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import OWNERS_IDS
 from src.bot.models import BotUser
+from src.db import get_async_session
 
 _logger = getLogger(__name__)
 
@@ -27,8 +28,10 @@ def _check_user_rights(func):
 	В хендлерах используется после декоратора перехватчика"""
 
 	async def wraper(message: Message):
-		users = select(BotUser).column(BotUser.username)
-		if message.chat.id in OWNERS_IDS.keys():
+		session: AsyncSession = await get_async_session()
+		query = select(BotUser).where(BotUser.username == message.chat.username)
+		user = await session.execute(query)
+		if user.scalars().first():
 			_logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 			await func(message)
 		else:

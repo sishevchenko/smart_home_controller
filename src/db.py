@@ -4,10 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, AsyncEngin
 from sqlalchemy.orm import DeclarativeMeta, declarative_base
 from sqlalchemy.orm import sessionmaker
 
+from src.config import CONFIG
 
 BaseMeta: DeclarativeMeta = declarative_base()
 
-engine: AsyncEngine = create_async_engine('sqlite+aiosqlite:///database.db', echo=True, future=True)
+engine: AsyncEngine = create_async_engine(CONFIG.DB_URL, echo=True, future=True)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:

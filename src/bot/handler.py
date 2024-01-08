@@ -7,10 +7,10 @@ from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 
 # from sqlalchemy import text
-from sqlalchemy import insert
+from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.config import REGISTER_KEY
+from src.config import CONFIG
 from src.bot.state_machine import StateRegister
 from src.bot.response import bot_response
 from src.db import get_async_session
@@ -45,10 +45,12 @@ async def user_register_handler(message: Message, state: FSMContext):
 async def create_new_user_handler(message: Message, state: FSMContext):
     session: AsyncSession = await get_async_session()
     regiter_key = message.text.strip()
-    if regiter_key == REGISTER_KEY:
+    if regiter_key == CONFIG.REGISTER_KEY:
         query = insert(BotUser).values(username=message.chat.username, chat_id=message.chat.id)
-        # await session.execute(query)
-        await message.answer(str(query))
+        on_conflict_do_update_query = query.on_conflict_do_update(set_=dict(username=message.chat.username))
+        await session.execute(on_conflict_do_update_query)
+        await session.commit()
+        await message.answer("Регистрация прошла успешно!")
         await state.clear()
         _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
     else:
