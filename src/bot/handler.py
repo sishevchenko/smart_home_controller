@@ -2,7 +2,6 @@ from logging import getLogger
 import json
 
 from aiogram.types import Message
-from aiogram import Dispatcher
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 
