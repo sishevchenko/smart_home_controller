@@ -6,7 +6,7 @@ from aiogram import Dispatcher
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
 
-# from sqlalchemy import text
+from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,13 +36,17 @@ async def command_help_handler(message: Message):
 
 @dp.message(Command(commands=['register']))
 async def user_register_handler(message: Message, state: FSMContext):
-    await message.answer("Input REGISTER_KEY")
+    """Начало регистрации в боте нового пользователя или обновление его данных"""
+
+    await message.answer("Введите ключ доступа")
     await state.set_state(StateRegister.INPUT_REGISTER_KEY)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
 @dp.message(StateRegister.INPUT_REGISTER_KEY)
 async def create_new_user_handler(message: Message, state: FSMContext):
+    """Второй этап регистрации пользователя с проверкой ключа доступа"""
+
     session: AsyncSession = await get_async_session()
     regiter_key = message.text.strip()
     if regiter_key == CONFIG.REGISTER_KEY:
@@ -50,22 +54,49 @@ async def create_new_user_handler(message: Message, state: FSMContext):
         on_conflict_do_update_query = query.on_conflict_do_update(set_=dict(username=message.chat.username))
         await session.execute(on_conflict_do_update_query)
         await session.commit()
-        await message.answer("Регистрация прошла успешно!")
+        await message.answer("Данные успешно обновлены!")
         await state.clear()
         _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
     else:
         _logger.warning(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
-@dp.message(Command(commands=['get_json']))
+@dp.message(Command(commands=['id']))
+@_check_user_rights
+async def get_id_handler(message: Message):
+    """Возвращает идентификатор пользователя"""
+    await message.answer(f"id = {message.from_user.id}")
+
+
+@dp.message(Command(commands=['chat_id']))
+@_check_user_rights
+async def get_chat_id_handler(message: Message):
+    """Возвращает идентификатор чата"""
+    await message.answer(f"chat_id = {message.chat.id}")
+
+
+@dp.message(Command(commands=['chat_info']))
 @_check_user_rights
 async def get_json_handler(message: Message):
-    res = "Chat json info:\n\n"
+    res = "Информация о чате:\n\n"
     _json = json.loads(message.chat.model_dump_json())
     for k, v in _json.items():
         res += f"{k}: {v}\n"
     await message.answer(res)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
+
+
+@dp.message(Command(commands=['user_info']))
+@_check_user_rights
+async def get_user_info_handler(message: Message):
+    """Возвращает данные пользователя из базы данных"""
+    session: AsyncSession = await get_async_session()
+    query = select(BotUser).where(BotUser.username == message.chat.username)
+    user = await session.execute(query)
+    user = user.scalars().first()
+    chat_id = user.chat_id
+    username = user.username
+    await message.answer(f"{chat_id=} {username=}")
 
 
 @dp.message()
