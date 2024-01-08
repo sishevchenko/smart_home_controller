@@ -7,7 +7,7 @@ from pathlib import Path
 from types import NoneType
 
 import uvicorn
-from aiogram import Dispatcher
+# from aiogram import Dispatcher
 from dotenv import load_dotenv
 
 env_is_load = load_dotenv(".env")
@@ -29,7 +29,8 @@ class Settings:
 		self.BASE_DIR: Path = Path(__file__).resolve().parent.parent
 		self.DEBUG: bool = True
 		self.BOT_START: bool = True
-		self._DISPATCHER: Dispatcher | None = None
+		# self._DISPATCHER: Dispatcher | None = None
+		self.OWNER: str | None = os.getenv("OWNER")
 		self.APP_HOST: str | None = os.getenv("APP_HOST")
 		self.APP_PORT: str | None = os.getenv("APP_PORT")
 		self.SECRET_KEY: str | None = os.getenv("SECRET_KEY")
@@ -66,19 +67,20 @@ class Settings:
 
 	SERVER: uvicorn.Server = property(_get_server, _set_server, _del_server)
 
-	def _get_dispatcher(self) -> Dispatcher:
-		if isinstance(self._DISPATCHER, NoneType):
-			self._set_dispatcher()
-		return self._DISPATCHER
+	# def _get_dispatcher(self) -> Dispatcher:
+	# 	if isinstance(self._DISPATCHER, NoneType):
+	# 		self._set_dispatcher()
+	# 	return self._DISPATCHER
 
-	def _set_dispatcher(self) -> None:
-		if isinstance(self._DISPATCHER, NoneType):
-			self._DISPATCHER = Dispatcher()
+	# def _set_dispatcher(self) -> None:
+	# 	if isinstance(self._DISPATCHER, NoneType):
+	# 		self._DISPATCHER = Dispatcher()
 
-	def _del_dispatcher(self) -> None:
-		self._DISPATCHER = None
+	# def _del_dispatcher(self) -> None:
+	# 	self._DISPATCHER = None
 
-	DISPATCHER = property(_get_dispatcher, _set_dispatcher, _del_dispatcher)
+	# DISPATCHER = property(_get_dispatcher, _set_dispatcher, _del_dispatcher)
+
 
 @lru_cache()
 def get_settings() -> Settings:

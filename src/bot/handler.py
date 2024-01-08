@@ -4,6 +4,7 @@ import json
 from aiogram.types import Message
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.context import FSMContext
+from aiogram import Dispatcher
 
 from sqlalchemy import select
 from sqlalchemy.dialects.sqlite import insert
@@ -12,28 +13,29 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.config import CONFIG
 from src.db import get_async_session
 from src.bot.state_machine import StateRegister
-from src.bot.response import bot_response
+from src.bot.response import BOT_RESPONSE
 from src.bot.utils import _check_user_rights, _get_func_name, _get_log_info
 from src.bot.models import BotUser
 
 _logger = getLogger(__name__)
 
+dp: Dispatcher = Dispatcher()
 
-@CONFIG.DISPATCHER.message(CommandStart())
+@dp.message(CommandStart())
 async def command_start_handler(message: Message):
     """Стартовая информация"""
-    await message.answer(bot_response["start"])
+    await message.answer(BOT_RESPONSE.START)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
-@CONFIG.DISPATCHER.message(Command(commands=['help']))
+@dp.message(Command(commands=['help']))
 async def command_help_handler(message: Message):
     """Все комманды с расшифровкой"""
-    await message.answer(bot_response["help"])
+    await message.answer(BOT_RESPONSE.HELP)
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
-@CONFIG.DISPATCHER.message(Command(commands=['register']))
+@dp.message(Command(commands=['register']))
 async def user_register_handler(message: Message, state: FSMContext):
     """Начало регистрации в боте нового пользователя или обновление его данных"""
 
@@ -46,7 +48,7 @@ async def user_register_handler(message: Message, state: FSMContext):
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
-@CONFIG.DISPATCHER.message(StateRegister.INPUT_REGISTER_KEY)
+@dp.message(StateRegister.INPUT_REGISTER_KEY)
 async def create_new_user_handler(message: Message, state: FSMContext):
     """Второй этап регистрации пользователя с проверкой ключа доступа"""
 
@@ -65,21 +67,21 @@ async def create_new_user_handler(message: Message, state: FSMContext):
         _logger.warning(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
-@CONFIG.DISPATCHER.message(Command(commands=['id']))
+@dp.message(Command(commands=['id']))
 @_check_user_rights
 async def get_id_handler(message: Message):
     """Возвращает идентификатор пользователя"""
     await message.answer(f"id = {message.from_user.id}")
 
 
-@CONFIG.DISPATCHER.message(Command(commands=['chat_id']))
+@dp.message(Command(commands=['chat_id']))
 @_check_user_rights
 async def get_chat_id_handler(message: Message):
     """Возвращает идентификатор чата"""
     await message.answer(f"chat_id = {message.chat.id}")
 
 
-@CONFIG.DISPATCHER.message(Command(commands=['chat_info']))
+@dp.message(Command(commands=['chat_info']))
 @_check_user_rights
 async def get_json_handler(message: Message):
     """Возвращает json информацию о чате"""
@@ -91,7 +93,7 @@ async def get_json_handler(message: Message):
     _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
 
 
-@CONFIG.DISPATCHER.message(Command(commands=['user_info']))
+@dp.message(Command(commands=['user_info']))
 @_check_user_rights
 async def get_user_info_handler(message: Message):
     """Возвращает данные пользователя из базы данных"""
@@ -105,7 +107,7 @@ async def get_user_info_handler(message: Message):
     await message.answer(f"chat_id = {chat_id}\nusername = {username}")
 
 
-@CONFIG.DISPATCHER.message()
+@dp.message()
 # @_check_user_rights
 async def echo_handler(message: Message):
     try:
