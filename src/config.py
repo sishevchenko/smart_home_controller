@@ -7,6 +7,7 @@ from pathlib import Path
 from types import NoneType
 
 import uvicorn
+from aiogram import Dispatcher
 from dotenv import load_dotenv
 
 load_dotenv(".env")
@@ -25,6 +26,7 @@ class Settings:
 		self.BASE_DIR = Path(__file__).resolve().parent.parent
 		self.DEBUG = True
 		self.BOT_START = True
+		self.DISPATCHER: Dispatcher = Dispatcher()
 		self.APP_HOST = os.getenv("APP_HOST")
 		self.APP_PORT = os.getenv("APP_PORT")
 		self.SECRET_KEY = os.getenv("SECRET_KEY")
