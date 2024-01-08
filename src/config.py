@@ -10,7 +10,10 @@ import uvicorn
 from aiogram import Dispatcher
 from dotenv import load_dotenv
 
-load_dotenv(".env")
+env_is_load = load_dotenv(".env")
+
+if not env_is_load:
+	raise FileExistsError("\".env\" file was not found")
 
 
 @final
