@@ -11,10 +11,10 @@ from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.config import CONFIG
+from src.db import get_async_session
 from src.bot.state_machine import StateRegister
 from src.bot.response import bot_response
-from src.db import get_async_session
-from src.utils import _check_user_rights, _get_func_name, _get_log_info
+from src.bot.utils import _check_user_rights, _get_func_name, _get_log_info
 from src.bot.models import BotUser
 
 _logger = getLogger(__name__)
