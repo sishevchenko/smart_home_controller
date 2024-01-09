@@ -55,7 +55,7 @@ async def create_new_user_handler(message: Message, state: FSMContext):
     session: AsyncSession = await get_async_session()
     regiter_key = message.text.strip()
     if regiter_key == CONFIG.REGISTER_KEY:
-        query = insert(BotUser).values(username=message.chat.username, chat_id=message.chat.id)
+        query = insert(BotUser).values(username=message.chat.username, chat_id=message.from_user.id)
         on_conflict_do_update_query = query.on_conflict_do_update(set_=dict(username=message.chat.username))
         await session.execute(on_conflict_do_update_query)
         await session.commit()
@@ -99,7 +99,7 @@ async def get_user_info_handler(message: Message):
     """Возвращает данные пользователя из базы данных"""
 
     session: AsyncSession = await get_async_session()
-    query = select(BotUser).where(BotUser.username == message.chat.username)
+    query = select(BotUser).where(BotUser.chat_id == message.from_user.id)
     user = await session.execute(query)
     user = user.scalars().first()
     chat_id = user.chat_id
@@ -108,7 +108,7 @@ async def get_user_info_handler(message: Message):
 
 
 @dp.message()
-# @_check_user_rights
+@_check_user_rights
 async def echo_handler(message: Message):
     try:
         await message.answer("Простите, я не понимаю\nПожалуйста, посмотрите инструкцию по команде\n/help")

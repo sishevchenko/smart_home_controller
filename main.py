@@ -17,6 +17,7 @@ app = FastAPI(
 
 loop = asyncio.get_event_loop()
 
+# стоит перенести эту настройку в конфиг
 if CONFIG.DEBUG:
     logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 else:
