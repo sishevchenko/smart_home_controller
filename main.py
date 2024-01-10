@@ -15,17 +15,27 @@ app = FastAPI(
     version="0.1.0"
 )
 
-loop = asyncio.get_event_loop()
+async def main():
 
-# стоит перенести эту настройку в конфиг
-if CONFIG.DEBUG:
-    logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
-else:
-    logging.basicConfig(level=logging.INFO, filename="server.log", filemode="a")
+    if CONFIG.DEBUG:
+        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+    else:
+        logging.basicConfig(level=logging.INFO, filename="server.log", filemode="a")
 
-if CONFIG.BOT_START:
-    loop.create_task(bot_main())
+    tasks = []
+
+    if CONFIG.BOT_START:
+        tasks.append(bot_main())
+
+    if CONFIG.API_START:
+        tasks.append(CONFIG.SERVER.serve())
+
+    await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
-    CONFIG.SERVER.run()
+    asyncio.run(main())
+else:
+    if CONFIG.BOT_START:
+        loop = asyncio.get_event_loop()
+        loop.create_task(bot_main())

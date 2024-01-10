@@ -19,23 +19,23 @@ from src.bot.models import BotUser
 
 _logger = getLogger(__name__)
 
-dp: Dispatcher = Dispatcher()
+DISPATCHER: Dispatcher = Dispatcher()
 
-@dp.message(CommandStart())
+@DISPATCHER.message(CommandStart())
 async def command_start_handler(message: Message):
     """Стартовая информация"""
     await message.answer(BOT_RESPONSE.START)
-    _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
+    _logger.info(_get_log_info(message.from_user.id, message.from_user.username, _get_func_name()))
 
 
-@dp.message(Command(commands=['help']))
+@DISPATCHER.message(Command(commands=['help']))
 async def command_help_handler(message: Message):
     """Все комманды с расшифровкой"""
     await message.answer(BOT_RESPONSE.HELP)
-    _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
+    _logger.info(_get_log_info(message.from_user.id, message.from_user.username, _get_func_name()))
 
 
-@dp.message(Command(commands=['register']))
+@DISPATCHER.message(Command(commands=['register']))
 async def user_register_handler(message: Message, state: FSMContext):
     """Начало регистрации в боте нового пользователя или обновление его данных"""
 
@@ -45,43 +45,43 @@ async def user_register_handler(message: Message, state: FSMContext):
 
     await message.answer("Введите ключ доступа")
     await state.set_state(StateRegister.INPUT_REGISTER_KEY)
-    _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
+    _logger.info(_get_log_info(message.from_user.id, message.from_user.username, _get_func_name()))
 
 
-@dp.message(StateRegister.INPUT_REGISTER_KEY)
+@DISPATCHER.message(StateRegister.INPUT_REGISTER_KEY)
 async def create_new_user_handler(message: Message, state: FSMContext):
     """Второй этап регистрации пользователя с проверкой ключа доступа"""
 
     session: AsyncSession = await get_async_session()
     regiter_key = message.text.strip()
     if regiter_key == CONFIG.REGISTER_KEY:
-        query = insert(BotUser).values(username=message.chat.username, chat_id=message.from_user.id)
+        query = insert(BotUser).values(id=message.from_user.id, username=message.chat.username)
         on_conflict_do_update_query = query.on_conflict_do_update(set_=dict(username=message.chat.username))
         await session.execute(on_conflict_do_update_query)
         await session.commit()
         await message.answer("Данные успешно обновлены!")
         await state.clear()
-        _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
-    else:
-        await message.answer("Неверный ключ регистрации!")
-        _logger.warning(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
+        _logger.info(_get_log_info(message.from_user.id, message.chat.username, _get_func_name()))
+        return
+    await message.answer("Неверный ключ регистрации!")
+    _logger.warning(_get_log_info(message.from_user.id, message.chat.username, _get_func_name()))
 
 
-@dp.message(Command(commands=['id']))
+@DISPATCHER.message(Command(commands=['id']))
 @_check_user_rights
 async def get_id_handler(message: Message):
     """Возвращает идентификатор пользователя"""
     await message.answer(f"id = {message.from_user.id}")
 
 
-@dp.message(Command(commands=['chat_id']))
+@DISPATCHER.message(Command(commands=['chat_id']))
 @_check_user_rights
 async def get_chat_id_handler(message: Message):
     """Возвращает идентификатор чата"""
     await message.answer(f"chat_id = {message.chat.id}")
 
 
-@dp.message(Command(commands=['chat_info']))
+@DISPATCHER.message(Command(commands=['chat_info']))
 @_check_user_rights
 async def get_json_handler(message: Message):
     """Возвращает json информацию о чате"""
@@ -90,24 +90,29 @@ async def get_json_handler(message: Message):
     for k, v in _json.items():
         res += f"{k}: {v}\n"
     await message.answer(res)
-    _logger.info(_get_log_info(message.chat.id, message.chat.username, _get_func_name()))
+    _logger.info(_get_log_info(message.from_user.id, message.from_user.username, _get_func_name()))
 
 
-@dp.message(Command(commands=['user_info']))
+@DISPATCHER.message(Command(commands=['user_info']))
 @_check_user_rights
 async def get_user_info_handler(message: Message):
     """Возвращает данные пользователя из базы данных"""
 
     session: AsyncSession = await get_async_session()
-    query = select(BotUser).where(BotUser.chat_id == message.from_user.id)
+    query = select(BotUser).where(BotUser.id == message.from_user.id).limit(1)
     user = await session.execute(query)
     user = user.scalars().first()
-    chat_id = user.chat_id
-    username = user.username
-    await message.answer(f"chat_id = {chat_id}\nusername = {username}")
+    if user:
+        id = user.id
+        username = user.username
+        await message.answer(f"{id=}\n{username=}")
+        _logger.info(_get_log_info(id, username, _get_func_name()))
+        return
+    await message.answer(f"Пользователь id={message.from_user.id} username={message.from_user.username} не найден:(")
+    _logger.info(_get_log_info(message.from_user.id, message.from_user.username, _get_func_name()))
 
 
-@dp.message()
+@DISPATCHER.message()
 @_check_user_rights
 async def echo_handler(message: Message):
     try:
