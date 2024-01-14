@@ -16,20 +16,16 @@ app = FastAPI(
 )
 
 async def main():
-
     if CONFIG.DEBUG:
         logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
     else:
         logging.basicConfig(level=logging.INFO, filename="server.log", filemode="a")
 
     tasks = []
-
     if CONFIG.BOT_START:
         tasks.append(bot_main())
-
     if CONFIG.API_START:
         tasks.append(CONFIG.SERVER.serve())
-
     await asyncio.gather(*tasks)
 
 

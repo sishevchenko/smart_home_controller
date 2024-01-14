@@ -12,5 +12,6 @@ engine: AsyncEngine = create_async_engine(CONFIG.DB_URL, echo=True, future=True)
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
+    """Используется в связке с fastapi.Depends для получения асинхронных сессий"""
     async with async_session_maker() as session:
-        return session
+        yield session

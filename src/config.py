@@ -2,12 +2,13 @@ import os
 import logging
 import asyncio
 from functools import lru_cache
-from typing import Self, final
+from typing import final
+from typing_extensions import Self
 from pathlib import Path
 from types import NoneType
 
 import uvicorn
-# from aiogram import Dispatcher
+from aiogram import Dispatcher
 from dotenv import load_dotenv
 
 _logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ if not env_is_load:
 class Settings:
 	"""Синглтон с настройками приложения"""
 
-	def __new__(cls):
+	def __new__(cls) -> Self:
 		if not hasattr(cls, 'instance'):
 			cls.instance = super(Settings, cls).__new__(cls)
 		return cls.instance
@@ -33,8 +34,7 @@ class Settings:
 		self.DEBUG: bool = True
 		
 		# Настройки API
-		self.API_START: bool = True
-		# self._DISPATCHER: Dispatcher | None = None
+		self.API_START: bool = False
 		self.APP_HOST: str | None = os.getenv("APP_HOST")
 		self.APP_PORT: str | None = os.getenv("APP_PORT")
 		self.SECRET_KEY: str | None = os.getenv("SECRET_KEY")
@@ -47,6 +47,7 @@ class Settings:
 		self.BOT_TOKEN: str | None = os.getenv("BOT_TOKEN")
 		self.REGISTER_KEY: str | None = os.getenv("REGISTER_KEY")
 		self.OWNER: str | None = os.getenv("OWNER")
+		self._DISPATCHER: Dispatcher | None = None
 
 		# Настройки базы данных
 		self.DB_URL: str | None = os.getenv("DB_URL")
@@ -87,23 +88,20 @@ class Settings:
 	# а не стартует из main файла как python скрипт < python3 main.py >
 	SERVER: uvicorn.Server = property(_get_server, _set_server, _del_server)
 
-	# ПРОБЛЕМА: при импорте Settings.DISPATCHER в bot_main он не наполняется хендлерами
-	# и перестает обрабатывать события, как вариант можно импортировать его из конфига в хендлеры и из хендлеров в bot_main
-	# но это выглядит скорее как новая проблема с разрешением зависимостей в будущем
+	def _get_dispatcher(self) -> Dispatcher:
+		if isinstance(self._DISPATCHER, NoneType):
+			self._set_dispatcher()
+		return self._DISPATCHER
 
-	# def _get_dispatcher(self) -> Dispatcher:
-	# 	if isinstance(self._DISPATCHER, NoneType):
-	# 		self._set_dispatcher()
-	# 	return self._DISPATCHER
+	def _set_dispatcher(self) -> None:
+		if isinstance(self._DISPATCHER, NoneType):
+			self._DISPATCHER = Dispatcher()
 
-	# def _set_dispatcher(self) -> None:
-	# 	if isinstance(self._DISPATCHER, NoneType):
-	# 		self._DISPATCHER = Dispatcher()
+	def _del_dispatcher(self) -> None:
+		self._DISPATCHER = None
 
-	# def _del_dispatcher(self) -> None:
-	# 	self._DISPATCHER = None
-
-	# DISPATCHER = property(_get_dispatcher, _set_dispatcher, _del_dispatcher)
+	# Предотвращаем создание DISPATCHER при отключенном боте
+	DISPATCHER = property(_get_dispatcher, _set_dispatcher, _del_dispatcher)
 
 
 @lru_cache()
