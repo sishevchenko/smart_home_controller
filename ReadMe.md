@@ -5,11 +5,11 @@ Telegram: @s_i_shevchenko
 ***
 
 # en_EN
-Telegram controller for smart home
+## Telegram controller for smart home
 ...
 
 # ru_RU
-Телеграм контроллер для управления умным домом  
+## Телеграм контроллер для управления умным домом  
 Проект реализован на базе FastAPI, aiogram и sqlite3  
 Целью данного проекта является изучение возможности интеграции телеграм бота в структуру приложения FastAPI  
 
