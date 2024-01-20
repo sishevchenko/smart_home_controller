@@ -1,7 +1,7 @@
 ***
-Author: sishevchenko
-GitHub: https://github.com/sishevchenko
-Telegram: @s_i_shevchenko
+Author: sishevchenko\n
+GitHub: https://github.com/sishevchenko\n
+Telegram: @s_i_shevchenko\n
 ***
 
 # en_EN
@@ -16,11 +16,11 @@ Telegram controller for smart home
 
 ## Start:
 For start use this commands:
-```
-uvicorn main:app OPTIONAL[--reload]
-docker build . -t smart_home_controller:latest
-docker rum smart_home_controller
-```
+
+`uvicorn main:app OPTIONAL[--reload]`
+`docker build . -t smart_home_controller:latest`
+`docker rum smart_home_controller`
+
 
 ## Logging: 
 On linux system use `tail ./server.log`
