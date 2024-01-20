@@ -23,5 +23,5 @@ For start use this commands:
 
 
 ## Logging: 
-On linux system use `tail ./server.log`  
+On linux system use `tail -F ./server.log`  
 On Windows system use `get-content .\server.log -Wait`  
