@@ -14,12 +14,12 @@ Telegram: @s_i_shevchenko
 Целью данного проекта является изучение возможности интеграции телеграм бота в структуру приложения FastAPI  
 
 
-## Start:
+## Start Project:
 For start use this commands:  
 
-`uvicorn main:app OPTIONAL[--reload]`  
-`docker build . -t smart_home_controller:latest`  
-`docker rum smart_home_controller`  
+- `uvicorn main:app OPTIONAL[--reload]`  
+- `docker build . -t smart_home_controller:latest`  
+- `docker rum smart_home_controller`  
 
 
 ## Logging: 
